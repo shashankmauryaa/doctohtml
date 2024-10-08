@@ -17,7 +17,6 @@ def get_font_style(run):
         font_style += f'font-size: {run.font.size.pt}pt; '
     return font_style.strip()
 
-
 def convert_docx_to_html(docx_file, html_file, output_folder):
     doc = Document(docx_file)
     image_filenames = []
@@ -36,49 +35,55 @@ def convert_docx_to_html(docx_file, html_file, output_folder):
                     bullet_points.append(paragraph.text.strip())
                 else:
                     f.write('<p>')
+                    
+                    # Check for hyperlinks
+                    for link in paragraph._element.xpath(".//w:hyperlink"):
+                        for inner_run in link.xpath("w:r", namespaces=link.nsmap):
+                            hyperlink_text = inner_run.text
+                            rId = link.get("{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id")
+                            hyperlink_url = doc._part.rels[rId]._target
+                            
+                            f.write(f'<a href="{hyperlink_url}">{hyperlink_text}</a>')
+
+                    # Then process runs for normal text and images
                     for run in paragraph.runs:
+                        # print(run.text)
+                        # print(run.text.hyperlink)
                         if run.text:
                             font_style = get_font_style(run)
                             if font_style:
                                 f.write('<span style="{}">{}</span>'.format(font_style, run.text))
                             else:
                                 f.write(run.text)
-                        else:
-                            # Check for hyperlink
-                            for para in doc.paragraphs:
-                                for link in para._element.xpath(".//w:hyperlink"):
-                                    inner_run = link.xpath("w:r", namespaces=link.nsmap)[0]
-                                    hyperlink_text = inner_run.text
-                                    rId = link.get("{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id")
-                                    hyperlink_url = doc._part.rels[rId]._target
-                                    f.write(f'<a href="{hyperlink_url}">{hyperlink_text}</a>')
-                            # Check if the run contains a drawing element (likely an image)
-                            for elem in run._element.iterdescendants():
-                                if "drawing" in elem.tag:
-                                    for elem2 in elem.iterdescendants():
-                                        if "graphicData" in elem2.tag:
-                                            for elem3 in elem2.iterdescendants():
-                                                if "pic" in elem3.tag:
-                                                    for elem4 in elem3.iterdescendants():
-                                                        if "blip" in elem4.tag:
-                                                            rId = elem4.attrib.get(
-                                                                "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}embed"
-                                                            )
-                                                            if rId is not None:
-                                                                image_filename = f"image{rId}.png"
-                                                                image_path = os.path.join(output_folder, image_filename)
-                                                                if image_filename not in used_image_filenames:
-                                                                    image_data = doc.part.related_parts[rId].blob
-                                                                    with open(image_path, "wb") as img_file:
-                                                                        img_file.write(image_data)
-                                                                    image_filenames.append(image_filename)
-                                                                    used_image_filenames.add(image_filename)
-                                                                    f.write(f'<img src="{image_filename}" alt="Image" style="width: 100%; height: auto;" /><br />\n')
-                                                                    break
+                        # Check if the run contains a drawing element (likely an image)
+                        for elem in run._element.iterdescendants():
+                            if "drawing" in elem.tag:
+                                for elem2 in elem.iterdescendants():
+                                    if "graphicData" in elem2.tag:
+                                        for elem3 in elem2.iterdescendants():
+                                            if "pic" in elem3.tag:
+                                                for elem4 in elem3.iterdescendants():
+                                                    if "blip" in elem4.tag:
+                                                        rId = elem4.attrib.get(
+                                                            "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}embed"
+                                                        )
+                                                        if rId is not None:
+                                                            image_filename = f"image{rId}.png"
+                                                            image_path = os.path.join(output_folder, image_filename)
+                                                            if image_filename not in used_image_filenames:
+                                                                image_data = doc.part.related_parts[rId].blob
+                                                                with open(image_path, "wb") as img_file:
+                                                                    img_file.write(image_data)
+                                                                image_filenames.append(image_filename)
+                                                                used_image_filenames.add(image_filename)
+                                                                f.write(f'<img src="{image_filename}" alt="Image" style="width: 100%; height: auto;" /><br />\n')
+                                                                break
                                                     break
-                                            break
-                                    break
+                                        break
+                                break
+                    
                     f.write('</p>\n')
+                    
         if bullet_points:
             f.write('<ul>\n')
             for bullet_point in bullet_points:
@@ -89,10 +94,10 @@ def convert_docx_to_html(docx_file, html_file, output_folder):
         f.write('</body>\n</html>')
 
 
-docx_file = r"C:\Users\user\Downloads\iOSDocumentForIntuneRelease.docx"
+docx_file = r"D:\SMIT\SEMESTER 7\DELL intern\iOSDocumentForIntuneRelease.docx"
 html_file = 'output.html'
 output_folder = r"C:\Users\user\Downloads"
 
 convert_docx_to_html(docx_file, html_file, output_folder)
 
-webbrowser.open(html_file)
+# webbrowser.open(html_file)
