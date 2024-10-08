@@ -88,7 +88,7 @@ def convert_docx_to_html(docx_file, html_file, output_folder):
 
 
 docx_file = r"C:\Users\Shashank_Maurya\OneDrive - Dell Technologies\Documents\doc-to-html\iOSDocumentForIntuneRelease.docx"
-html_file = 'output.html'
+html_file = 'output2.html'
 output_folder = r"C:\Users\Shashank_Maurya\OneDrive - Dell Technologies\Documents\doc-to-html"
 
 convert_docx_to_html(docx_file, html_file, output_folder)
