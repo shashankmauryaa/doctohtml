@@ -87,9 +87,17 @@ def convert_docx_to_html(docx_file, html_file, output_folder):
         f.write('</body>\n</html>')
 
 
-docx_file = r"C:\Users\Shashank_Maurya\OneDrive - Dell Technologies\Documents\doc-to-html\iOSDocumentForIntuneRelease.docx"
+# Get the current working directory
+current_directory = os.getcwd()
+
+# Specify the name of your Word document
+file_name = 'iOSDocumentForIntuneRelease.docx'
+
+# Create the full path to the document
+docx_file = os.path.join(current_directory, file_name)
+
 html_file = 'output2.html'
-output_folder = r"C:\Users\Shashank_Maurya\OneDrive - Dell Technologies\Documents\doc-to-html"
+output_folder = current_directory
 
 convert_docx_to_html(docx_file, html_file, output_folder)
 
