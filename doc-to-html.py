@@ -17,6 +17,7 @@ def get_font_style(run):
         font_style += f'font-size: {run.font.size.pt}pt; '
     return font_style.strip()
 
+
 def convert_docx_to_html(docx_file, html_file, output_folder):
     doc = Document(docx_file)
     image_filenames = []
@@ -43,16 +44,14 @@ def convert_docx_to_html(docx_file, html_file, output_folder):
                             else:
                                 f.write(run.text)
                         else:
-                            # Check for hyperlink
-                            for para in doc.paragraphs:
+                            for para in doc.paragraphs:                     # hyperlinks
                                 for link in para._element.xpath(".//w:hyperlink"):
-                                    inner_run = link.xpath("w:r", namespaces=link.nsmap)[0]
+                                    inner_run = link.xpath("w:r")[0]
                                     hyperlink_text = inner_run.text
                                     rId = link.get("{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id")
                                     hyperlink_url = doc._part.rels[rId]._target
                                     f.write(f'<a href="{hyperlink_url}">{hyperlink_text}</a>')
-                            # Check if the run contains a drawing element (likely an image)
-                            for elem in run._element.iterdescendants():
+                            for elem in run._element.iterdescendants():     # drawing element (image)
                                 if "drawing" in elem.tag:
                                     for elem2 in elem.iterdescendants():
                                         if "graphicData" in elem2.tag:
@@ -88,9 +87,9 @@ def convert_docx_to_html(docx_file, html_file, output_folder):
         f.write('</body>\n</html>')
 
 
-docx_file = r"C:\Users\user\Downloads\iOSDocumentForIntuneRelease.docx"
+docx_file = r"C:\Users\Shashank_Maurya\OneDrive - Dell Technologies\Documents\doc-to-html\iOSDocumentForIntuneRelease.docx"
 html_file = 'output.html'
-output_folder = r"C:\Users\user\Downloads"
+output_folder = r"C:\Users\Shashank_Maurya\OneDrive - Dell Technologies\Documents\doc-to-html"
 
 convert_docx_to_html(docx_file, html_file, output_folder)
 
