@@ -17,7 +17,6 @@ def get_font_style(run):
         font_style += f'font-size: {run.font.size.pt}pt; '
     return font_style.strip()
 
-
 def convert_docx_to_html(docx_file, html_file, output_folder):
     doc = Document(docx_file)
     image_filenames = []
